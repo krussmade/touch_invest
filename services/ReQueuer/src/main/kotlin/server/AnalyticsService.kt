@@ -1,3 +1,9 @@
+/*
+This server is configured in test purposes only
+Do not use it in production!
+Instead, mark your host and port in utils.AnalyticsClient
+ */
+
 package server
 
 import io.grpc.ServerBuilder
