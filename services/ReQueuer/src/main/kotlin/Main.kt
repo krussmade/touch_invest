@@ -4,15 +4,15 @@ fun main(args: Array<String>) {
     val timeout = if (args.any { it.startsWith("timeout") }) {
         val parsedTimeout = args.first { it.startsWith("timeout") }
         parsedTimeout.split("=")[1].toLong()
-    } else { 20L }
+    } else { 120L }
 
-    val queueBalancer = QueueBalancer(timeout)
+    val batches = if (args.any { it.startsWith("batches") }) {
+        val parsedTimeout = args.first { it.startsWith("batches") }
+        parsedTimeout.split("=")[1].toInt()
+    } else { 20 }
+
+    val queueBalancer = QueueBalancer(timeout, batches)
     queueBalancer.startPolling()
 
-    TODO(
-        "add all securities" +
-                "add proto" +
-                "add response parser and proto converter" +
-                "check trading dates"
-    )
+    TODO("check trading dates - https://iss.moex.com/iss/engines/stock/timetable")
 }

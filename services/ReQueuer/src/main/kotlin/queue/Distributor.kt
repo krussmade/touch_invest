@@ -4,8 +4,10 @@ import utils.QueueBaseException
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.json.JsonArray
 import requester.SecurityRequester
-import utils.Security
+import utils.AnalyticsClient
+import utils.convertToSecurityProto
 import java.net.http.HttpClient
 
 class Distributor {
@@ -15,8 +17,10 @@ class Distributor {
         RESERVED,
     }
 
-    private val client = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build()
     private var status = Status.OK
+
+    private val analyticsClient = AnalyticsClient()
+    private val httpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_2).build()
 
     fun isOK() = (status == Status.OK)
 
@@ -43,25 +47,18 @@ class Distributor {
         status = Status.OK
     }
 
-    private suspend fun String.convertToProto(): String {
-//        return this // add parse utils when protobuf included
-        return this.substring(0, 10)
-    }
-
-    private suspend fun sendToAnalytics(data: String): Boolean {
+    private suspend fun sendToAnalytics(data: JsonArray): Boolean {
         // pack to protobuf
+        val security = convertToSecurityProto(data)
 
         // send
-        println(data.convertToProto())
-
-        // await response
-        return true
+        return analyticsClient.sendSecurity(security, 1_500L)
     }
 
-    suspend fun distribute(security: Security): Boolean {
+    suspend fun distribute(security: String): Boolean {
         // call and parse
-        val r = SecurityRequester(security.name, client)
-        val dataParsed: String = try {
+        val r = SecurityRequester(security, httpClient)
+        val dataParsed: JsonArray = try {
             withTimeout(500) {
                 r.getSecurityData()
             }
@@ -75,8 +72,6 @@ class Distributor {
             e.printStackTrace()
             return false
         }
-
-        // parse data
 
         // send to Analytics
         return try {

@@ -1,9 +1,8 @@
 package queue
 
 import kotlinx.coroutines.*
-import utils.Security
 
-class QueueBalancer(private val timeout: Long) {
+class QueueBalancer(private val timeout: Long, private val batches: Int) {
 
     private val qList = listOf(
         Distributor(),
@@ -39,7 +38,7 @@ class QueueBalancer(private val timeout: Long) {
         return false
     }
 
-    private suspend fun sendToNextQueue(security: Security, rec: Int = 0): Boolean {
+    private suspend fun sendToNextQueue(security: String, rec: Int = 0): Boolean {
         if (rec == queuesCount) {
             if (!tryTurnReserved()) {
                 if (!tryTurnTimeout()) {
@@ -61,7 +60,7 @@ class QueueBalancer(private val timeout: Long) {
 
     private suspend fun relaxQueues() = runBlocking {
         val relaxAfterRequest = launch {
-            delay(timeout * 1000)
+            delay((timeout / batches) * 1000)
         }
         val jobs = ArrayDeque<Job>(queuesCount)
         for (q in qList) {
@@ -80,19 +79,23 @@ class QueueBalancer(private val timeout: Long) {
     }
 
     fun startPolling() = runBlocking {
-        val securities = Security.values()
+        val securities = utils.securities
         val jobs = ArrayDeque<Job>(securities.size)
+
+        var epoch = 0
 
         while (true) {
             try {
                 withTimeout(2_000L) {
-                    for (security in securities) {
+                    for (i in securities.indices) {
+                        if (i % batches != epoch) continue
+                        val security = securities[i]
                         jobs.addLast(
                             launch {
                                 val success = sendToNextQueue(security)
                                 if (!success) {
                                     println("job $security did not perform well")
-                                    cancel()
+                                    this@launch.cancel("did not perform well")
                                 }
                             }
                         )
@@ -111,9 +114,10 @@ class QueueBalancer(private val timeout: Long) {
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
-                println("Performed " + jobs.count { it.isCompleted }.toString() + " out of " + securities.size)
+                println("Performed " + jobs.count { it.isCompleted }.toString() + " out of " + jobs.size)
                 jobs.clear()
-                relaxQueues()
+                relaxQueues()   // blocking call for (timeout / batches) secs
+                epoch = (epoch + 1) % batches
             }
         }
     }
