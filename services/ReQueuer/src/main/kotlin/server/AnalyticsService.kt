@@ -1,7 +1,7 @@
 /*
 This server is configured in test purposes only
 Do not use it in production!
-Instead, mark your host and port in utils.AnalyticsClient
+Instead, mark your host and port in requester.AnalyticsClient
  */
 
 package server
@@ -15,7 +15,7 @@ class AnalyticsService : AnalyticsGrpcKt.AnalyticsCoroutineImplBase() {
     override suspend fun sendSecurity(request: Security.TSecurity): Security.TAnalyticsSendSecurityResponse {
         println("SEC_ID: ${request.secId}   TRADE: ${request.boardId}   SYS_TIME: ${request.sysTime}")
         return tAnalyticsSendSecurityResponse {
-            result = 0
+            result = Security.TAnalyticsSendSecurityResponse.SecurityInsertResult.OK
         }
     }
 }

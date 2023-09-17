@@ -1,10 +1,6 @@
 package utils
 
-import io.grpc.ManagedChannelBuilder
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.*
-import proto.AnalyticsGrpcKt
 import proto.Security.TSecurity
 import proto.tSecurity
 import java.time.LocalDateTime
@@ -105,28 +101,5 @@ internal fun convertToSecurityProto(data: JsonArray): TSecurity {
         etfSettleCurrency = data[52].unpackString()
         valTodayRur = data[53].unpackLong()
         tradingSession = data[54].unpackString()
-    }
-}
-
-class AnalyticsClient {
-    private val host = "localhost"  // change to real
-    private val port = 50051        // change to real
-
-    private val channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build()
-    private val stub = AnalyticsGrpcKt.AnalyticsCoroutineStub(channel)
-
-    suspend fun sendSecurity(security: TSecurity, timeout: Long): Boolean {
-        return try {
-            withTimeout(timeout) {
-                val response = stub.sendSecurity(security)
-                return@withTimeout response.result == 0
-            }
-        } catch (e: TimeoutCancellationException) {
-            println("analytics timeout")
-            false
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
     }
 }

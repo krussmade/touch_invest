@@ -31,7 +31,7 @@ class SecurityRequester(private val securityName: String, private val client: Ht
         } catch (e: AssertionError) {
             e.printStackTrace()
             throw NullDataException()
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             e.printStackTrace()
             throw DataParseException()
         }

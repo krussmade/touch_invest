@@ -1,12 +1,12 @@
 package queue
 
-import utils.QueueBaseException
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.JsonArray
+import requester.AnalyticsClient
 import requester.SecurityRequester
-import utils.AnalyticsClient
+import utils.QueueBaseException
 import utils.convertToSecurityProto
 import java.net.http.HttpClient
 
@@ -50,7 +50,6 @@ class Distributor {
     private suspend fun sendToAnalytics(data: JsonArray): Boolean {
         // pack to protobuf
         val security = convertToSecurityProto(data)
-
         // send
         return analyticsClient.sendSecurity(security, 1_500L)
     }
@@ -68,7 +67,7 @@ class Distributor {
         } catch (e: QueueBaseException) {
             println(e.message)
             return false
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             e.printStackTrace()
             return false
         }
@@ -80,6 +79,9 @@ class Distributor {
             }
         } catch (e: TimeoutCancellationException) {
             status = Status.TIMEOUT
+            false
+        } catch (e: Throwable) {
+            e.printStackTrace()
             false
         }
     }

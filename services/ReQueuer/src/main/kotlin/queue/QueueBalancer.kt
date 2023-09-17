@@ -111,7 +111,7 @@ class QueueBalancer(private val timeout: Long, private val batches: Int) {
                     }
                     job.cancelAndJoin()
                 }
-            } catch (e: Exception) {
+            } catch (e: Throwable) {
                 e.printStackTrace()
             } finally {
                 println("Performed " + jobs.count { it.isCompleted }.toString() + " out of " + jobs.size)

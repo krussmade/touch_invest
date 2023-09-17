@@ -62,7 +62,14 @@ message TSecurity {
 }
 
 message TAnalyticsSendSecurityResponse {
-    int32 result = 1; // 0 - ok
+    enum SecurityInsertResult {
+        OK = 0;
+        ALREADY_EXISTS = 1;
+        DB_FAIL = 2;
+        UNKNOWN_FAIL = 3;
+    }
+
+    SecurityInsertResult result = 1;
     optional string reason = 2;
 }
 
