@@ -3,15 +3,24 @@ package utils
 import kotlinx.serialization.json.*
 import proto.Security.TSecurity
 import proto.tSecurity
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
-private fun String.toSeconds(): Long {
+private fun String.toSecondsWithDate(): Long {
     val clear = this.replace("\"", "")
     return LocalDateTime.parse(clear, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         .toEpochSecond(ZoneOffset.UTC)
+}
+
+private fun String.toSeconds(): Long {
+    val clear = this.replace("\"", "")
+    val currentDate = LocalDate.now()
+    return LocalTime.parse(clear, DateTimeFormatter.ofPattern("HH:mm:ss"))
+        .toEpochSecond(currentDate, ZoneOffset.UTC)
 }
 
 private fun String.toGoogleTime(): com.google.protobuf.Timestamp {
@@ -19,7 +28,11 @@ private fun String.toGoogleTime(): com.google.protobuf.Timestamp {
         seconds = try {
             this@toGoogleTime.toSeconds()
         } catch (e: DateTimeParseException) {
-            0L
+            try {
+                this@toGoogleTime.toSecondsWithDate()
+            } catch (e: DateTimeParseException) {
+                0L
+            }
         }
     }
 }

@@ -11,7 +11,7 @@ import proto.tAnalyticsSendSecurityResponse
 class AnalyticsServiceImpl : AnalyticsService {
     override suspend fun sendSecurity(security: TSecurity): TAnalyticsSendSecurityResponse {
         // add to database
-        println(security.time.toLocalDateTime())
+        // security.updateTime.toLocalDateTime()
 
         return tAnalyticsSendSecurityResponse {
             result = SecurityInsertResult.OK
@@ -29,7 +29,7 @@ class AnalyticsServiceImpl : AnalyticsService {
         val updateTimes = listOf(com.google.protobuf.Timestamp.newBuilder().setSeconds(0L).build())
 
         return TAnalyticsGetPricesRangeResponse.newBuilder()
-            .addAllPrice(prices)
+            .addAllPrices(prices)
             .addAllUpdateTimes(updateTimes)
             .build()
     }
