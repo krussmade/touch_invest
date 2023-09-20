@@ -1,16 +1,20 @@
-// sources:
-// https://habr.com/ru/companies/otus/articles/648747/
-
 import com.google.protobuf.gradle.*
 
 plugins {
     kotlin("jvm") version "1.8.0"
     application
+
+    // protobuf
     id("com.google.protobuf") version "0.9.4"
+
+    // docker
+    id("com.palantir.docker") version "0.22.1"
+    id("com.palantir.docker-run") version "0.22.1"
+    distribution
 }
 
 group = "com.mweizen"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -42,8 +46,24 @@ kotlin {
     jvmToolchain(11)
 }
 
-application {
-    mainClass.set("MainKt")
+//application {
+//    mainClass.set("MainKt")
+//}
+
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "MainKt"
+    }
+    // To avoid the duplicate handling strategy error
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // To add all the dependencies
+    from(sourceSets.main.get().output)
+
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
 }
 
 protobuf {
@@ -73,4 +93,15 @@ protobuf {
             }
         }
     }
+}
+
+docker {
+    name = "${project.name.toLowerCase()}:${project.version}"
+    files(tasks.jar.get().outputs)
+    setDockerfile(file("Dockerfile"))
+}
+
+dockerRun {
+    name = project.name.toLowerCase()
+    image = "${project.name.toLowerCase()}:${project.version}"
 }

@@ -4,7 +4,7 @@ fun main(args: Array<String>) {
     val timeout = if (args.any { it.startsWith("timeout") }) {
         val parsedTimeout = args.first { it.startsWith("timeout") }
         parsedTimeout.split("=")[1].toLong()
-    } else { 120L }
+    } else { 5*60L }
 
     val batches = if (args.any { it.startsWith("batches") }) {
         val parsedTimeout = args.first { it.startsWith("batches") }
