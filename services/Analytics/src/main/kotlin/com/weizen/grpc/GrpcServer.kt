@@ -8,14 +8,20 @@ import com.weizen.service.AnalyticsService
 import com.weizen.service.impl.AnalyticsServiceImpl
 import io.grpc.ServerBuilder
 import proto.AnalyticsGrpcKt
-import proto.Security.TSecurity
+import proto.Security.TAnalyticsGetPricesRangeRequest
+import proto.Security.TAnalyticsGetPricesRangeResponse
 import proto.Security.TAnalyticsSendSecurityResponse
+import proto.Security.TSecurity
 
-open class AnalyticsDispatcher : AnalyticsGrpcKt.AnalyticsCoroutineImplBase() {
+class AnalyticsDispatcher : AnalyticsGrpcKt.AnalyticsCoroutineImplBase() {
     val service: AnalyticsService = AnalyticsServiceImpl()
 
     override suspend fun sendSecurity(request: TSecurity): TAnalyticsSendSecurityResponse {
         return service.sendSecurity(request)
+    }
+
+    override suspend fun getPricesRange(request: TAnalyticsGetPricesRangeRequest): TAnalyticsGetPricesRangeResponse {
+        return service.getPricesRange(request)
     }
 }
 

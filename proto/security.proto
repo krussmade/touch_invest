@@ -73,6 +73,19 @@ message TAnalyticsSendSecurityResponse {
     optional string reason = 2;
 }
 
+message TAnalyticsGetPricesRangeResponse {
+    repeated google.protobuf.Timestamp updateTimes = 1;
+    repeated double price = 2;
+}
+
+message TAnalyticsGetPricesRangeRequest {
+    google.protobuf.Timestamp beginPeriod = 1;
+    google.protobuf.Timestamp endPeriod = 2;
+    string sec_id = 3;
+    string boardId = 4;
+}
+
 service Analytics {
   rpc SendSecurity(TSecurity) returns (TAnalyticsSendSecurityResponse);
+  rpc GetPricesRange(TAnalyticsGetPricesRangeRequest) returns (TAnalyticsGetPricesRangeResponse);
 }
