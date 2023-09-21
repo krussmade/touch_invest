@@ -46,10 +46,6 @@ kotlin {
     jvmToolchain(11)
 }
 
-//application {
-//    mainClass.set("MainKt")
-//}
-
 tasks.withType<Jar> {
     manifest {
         attributes["Main-Class"] = "MainKt"

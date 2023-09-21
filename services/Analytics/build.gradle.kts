@@ -1,4 +1,5 @@
 import com.google.protobuf.gradle.*
+import io.ktor.plugin.features.*
 
 val ktor_version: String by project
 val kotlin_version: String by project
@@ -7,6 +8,8 @@ val logback_version: String by project
 plugins {
     kotlin("jvm") version "1.9.10"
     id("io.ktor.plugin") version "2.3.4"
+
+    // protobuf
     id("com.google.protobuf") version "0.9.4"
 }
 
@@ -42,9 +45,6 @@ dependencies {
     api("io.grpc:grpc-kotlin-stub:1.2.1")
     api("io.grpc:grpc-stub:1.44.0")
     runtimeOnly("io.grpc:grpc-netty:1.44.0")
-
-    // gRPC server
-//    implementation("io.newm.server:ktor-grpc:0.2.0")
 }
 
 protobuf {
@@ -73,5 +73,21 @@ protobuf {
                 id("kotlin")
             }
         }
+    }
+}
+
+ktor {
+    docker {
+        localImageName.set("analytics")
+        portMappings.set(
+            mutableListOf(
+                DockerPortMapping(
+                    50051, 50051
+                ),
+                DockerPortMapping(
+                    50052, 50052
+                )
+            )
+        )
     }
 }
