@@ -78,16 +78,17 @@ protobuf {
 
 ktor {
     docker {
-        localImageName.set("analytics")
-        portMappings.set(
-            mutableListOf(
-                DockerPortMapping(
-                    50051, 50051
-                ),
-                DockerPortMapping(
-                    50052, 50052
-                )
-            )
-        )
+//        localImageName.set("analytics")
+//        portMappings.set(
+//            mutableListOf(
+//                DockerPortMapping(
+//                    50051, 50051
+//                ),
+//                DockerPortMapping(
+//                    50052, 50052
+//                )
+//            )
+//        )
+        file("Dockerfile")
     }
 }

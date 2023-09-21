@@ -1,8 +1,5 @@
 # build project
-./gradlew build
+docker build -t analytics .
 
-# build image and start container
-# see 'docker ps'
-# to stop run 'docker stop requeuer' or './gradlew dockerStop'
-./gradlew buildImage
-./gradlew runDocker
+# run docker
+docker run -p 50051:50051 -p 50052:50052 my-application
