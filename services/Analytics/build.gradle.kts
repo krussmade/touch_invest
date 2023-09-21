@@ -1,5 +1,4 @@
 import com.google.protobuf.gradle.*
-import io.ktor.plugin.features.*
 
 val ktor_version: String by project
 val kotlin_version: String by project
@@ -11,16 +10,37 @@ plugins {
 
     // protobuf
     id("com.google.protobuf") version "0.9.4"
+
+    // docker
+    id("com.palantir.docker") version "0.22.1"
+    id("com.palantir.docker-run") version "0.22.1"
+    distribution
 }
 
 group = "com.weizen"
 version = "0.0.1"
 
 application {
-    mainClass.set("com.weizen.ApplicationKt")
+//    mainClass.set("com.weizen.ApplicationKt")
 
     val isDevelopment: Boolean = project.ext.has("development")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+}
+
+tasks.withType<Jar> {
+    manifest {
+        attributes["Main-Class"] = "com.weizen.ApplicationKt"
+    }
+    // To avoid the duplicate handling strategy error
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    // To add all the dependencies
+    from(sourceSets.main.get().output)
+
+    dependsOn(configurations.runtimeClasspath)
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
 }
 
 repositories {
@@ -78,17 +98,17 @@ protobuf {
 
 ktor {
     docker {
-//        localImageName.set("analytics")
-//        portMappings.set(
-//            mutableListOf(
-//                DockerPortMapping(
-//                    50051, 50051
-//                ),
-//                DockerPortMapping(
-//                    50052, 50052
-//                )
-//            )
-//        )
         file("Dockerfile")
     }
+}
+
+docker {
+    name = "${project.name.toLowerCase()}:${project.version}"
+    files(tasks.jar.get().outputs)
+    setDockerfile(file("Dockerfile"))
+}
+
+dockerRun {
+    name = project.name.toLowerCase()
+    image = "${project.name.toLowerCase()}:${project.version}"
 }
