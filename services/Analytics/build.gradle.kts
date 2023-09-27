@@ -102,13 +102,19 @@ ktor {
     }
 }
 
+val imagePrefix = "cr.yandex/crpjukeldgu5s966oqqo/"
+
 docker {
-    name = "${project.name.toLowerCase()}:${project.version}"
+    name = "$imagePrefix${project.name.toLowerCase()}:${project.version}"
     files(tasks.jar.get().outputs)
     setDockerfile(file("Dockerfile"))
 }
 
 dockerRun {
     name = project.name.toLowerCase()
-    image = "${project.name.toLowerCase()}:${project.version}"
+    image = "$imagePrefix${project.name.toLowerCase()}:${project.version}"
+    ports(
+        "50051:50051",
+        "50052:50052"
+    )
 }

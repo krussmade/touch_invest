@@ -12,7 +12,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
 class AnalyticsClient(private val useGRPC: Boolean = true) {
-    private val host = "localhost"  // change to real
+    private val host = "analytics"
     private val port = 50051
     private val portGRPC = 50052
 

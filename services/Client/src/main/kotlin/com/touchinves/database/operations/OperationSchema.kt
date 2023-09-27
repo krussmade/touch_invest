@@ -17,7 +17,7 @@ class OperationService(
         val secId = integer("sec_id")
         val price = integer("price")
         val qty = integer("qty")
-        val date = varchar("type", length = 50)
+        val date = varchar("date", length = 50)
 
         override val primaryKey = PrimaryKey(id)
     }

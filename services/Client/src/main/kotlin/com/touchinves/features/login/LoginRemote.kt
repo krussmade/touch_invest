@@ -1,4 +1,4 @@
-package ru.playzone.features.login
+package com.touchinves.features.login
 
 import kotlinx.serialization.Serializable
 
